@@ -6,5 +6,6 @@ I want a jounral with a calendar view that can link to the pages for daily journ
 
 Current staus: WIP.
 
-run `npm install`
-then run `node index.js`
+run: `npm install`
+then: `npm install pdfkit`
+and finally: `node index.js`
