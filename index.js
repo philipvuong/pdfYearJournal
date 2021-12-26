@@ -9,6 +9,12 @@ const doc = new PDFDocument({
 const CURRENT_YEAR = 2021;
 const NOTE_START_PAGE = 12; // REFINE THIS CONSTANT // THIS ACTUALLY STARTS AT 14
 const ACTUAL_NOTE_START_PAGE = 14;
+const LIGHT_GRAY = "#D3D3D3";
+const BLACK = "#000000";
+
+const WIDTH = 612;
+const LENGTH = 792;
+const MARGIN = 72;
 
 let pageCounter = 1;
 let dayCounter = 0;
@@ -73,8 +79,9 @@ const daysOfWeekObj = {
 };
 
 //   TODO    //
-// - index pages for notable pages.
-// - calendar view with click link.
+// - index pages for notable dates.
+// - Why first day of month note page is offset
+// - OPTIONAL: Prompts for journaling/goal
 // END TODO //
 
 const daysIntoYear = (month, day) => {
@@ -101,7 +108,14 @@ const datePageLink = () => {
 // CREATE NOTE PAGES //
 [...Array(daysInYear() + 1)].map((_, day) => {
   // doc.addPage({ margin: 35 });
-  doc.addPage();
+  doc
+    .addPage()
+    .moveTo(WIDTH / 2, MARGIN)
+    .lineTo(WIDTH / 2, LENGTH)
+    .moveTo(45, LENGTH / 3)
+    .lineTo(WIDTH - 45, LENGTH / 3)
+    .strokeColor(LIGHT_GRAY)
+    .stroke();
 });
 
 // CREATE TITLE PAGE
@@ -118,18 +132,24 @@ Object.keys(monthsObj).forEach((month) => {
   let daysInMonth = new Date(CURRENT_YEAR, month, 0).getDate();
 
   // Name of Month //
-  doc.fontSize(24).text(monthsObj[month], 45, 45, {
-    align: "left",
-    continued: false,
-  });
+  doc
+    .fontSize(24)
+    .text(monthsObj[month], 45, 45, {
+      align: "left",
+      continued: false,
+    })
+    .fill(BLACK);
 
   // Days of the Week Sun-Sat //
   Object.values(daysOfWeekObj).forEach((day) => {
-    doc.fontSize(12).text(day, {
-      continued: true,
-      columns: 2,
-      wordSpacing: 9,
-    });
+    doc
+      .fontSize(12)
+      .text(day, {
+        continued: true,
+        columns: 2,
+        wordSpacing: 9,
+      })
+      .fill(BLACK);
   });
 
   // Start calendar off on the right day by inserting empty spaces.
@@ -148,12 +168,15 @@ Object.keys(monthsObj).forEach((month) => {
   [...Array(daysInMonth)].map((_, day) => {
     dayCounter++;
 
-    doc.fontSize(12).text(makeTwoDigits(day + 1), {
-      continued: true,
-      wordSpacing: 17.5,
-      lineGap: 10,
-      link: datePageLink(),
-    });
+    doc
+      .fontSize(12)
+      .text(makeTwoDigits(day + 1), {
+        continued: true,
+        wordSpacing: 17.5,
+        lineGap: 10,
+        link: datePageLink(),
+      })
+      .fill(BLACK);
   });
   doc.addPage();
 
