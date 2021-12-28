@@ -146,7 +146,7 @@ const createHeaderLink = () => {
       doc
         .fontSize(12)
         .fillColor(DARK_GRAY)
-        .text(headerLinks[i], 15 + 35 * i, 35, {
+        .text(headerLinks[i], 20 + 35 * i, 50, {
           align: "left",
           width: 410,
           wordSpacing: 10,
@@ -159,7 +159,7 @@ const createHeaderLink = () => {
     doc
       .fontSize(12)
       .fillColor(DARK_GRAY)
-      .text("Notes", 15 + 35 * 12, 35, {
+      .text("Notes", 20 + 35 * 12, 50, {
         align: "left",
         width: 410,
         wordSpacing: 10,
@@ -172,7 +172,7 @@ const createMonthlyPrompts = () => {
   doc
     .fontSize(14)
     .fillColor(LIGHT_GRAY)
-    .text("Month Goal", WIDTH / 2 + 10, MARGIN / 2 + 25, {
+    .text("Month Goal", WIDTH / 2 + 10, MARGIN / 2 + 30, {
       oblique: true,
     });
 
@@ -199,7 +199,7 @@ const createCalendarPage = () => {
     pageCounter++;
 
     // Name of Month //
-    doc.fontSize(24).fillColor(BLACK).text(monthsObj[month], 55, 75, {
+    doc.fontSize(24).fillColor(BLACK).text(monthsObj[month], 55, 85, {
       align: "left",
       continued: false,
     });
@@ -249,7 +249,7 @@ console.log(`Creating PDF Journal for ${JOURNAL_YEAR}...`);
 [...Array(NOTE_START_PAGE)].map((_, _calendarPages) => {
   doc
     .addPage()
-    .moveTo(WIDTH / 2, MARGIN / 2 + 25)
+    .moveTo(WIDTH / 2, MARGIN / 2 + 30)
     .lineTo(WIDTH / 2, LENGTH - MARGIN / 2)
     .moveTo(45, LENGTH / 3 + 25)
     .lineTo(WIDTH - 45, LENGTH / 3 + 25)
@@ -264,7 +264,7 @@ doc.switchToPage(NOTE_START_PAGE);
   (_, _calendarPages) => {
     doc
       .addPage({ margin: 10 })
-      .moveTo(WIDTH / 2, MARGIN / 2 + 25)
+      .moveTo(WIDTH / 2, MARGIN / 2 + 30)
       .lineTo(WIDTH / 2, LENGTH / 3 + 25)
       .moveTo(45, LENGTH / 3 + 25)
       .lineTo(WIDTH - 45, LENGTH / 3 + 25)
