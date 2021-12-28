@@ -6,11 +6,13 @@ const doc = new PDFDocument({
   bufferPages: true,
 });
 
-const CURRENT_YEAR = 2021;
+const CURRENT_YEAR = 2022;
 const NOTE_START_PAGE = 12; // REFINE THIS CONSTANT // THIS ACTUALLY STARTS AT 14
 const ACTUAL_NOTE_START_PAGE = 14;
 const LIGHT_GRAY = "#D3D3D3";
 const BLACK = "#000000";
+const DARK_GRAY = "#696969";
+const EXTRA_PAGES = 25;
 
 const WIDTH = 612;
 const LENGTH = 792;
@@ -97,6 +99,14 @@ const daysInYear = () => {
     : 365;
 };
 
+const daysInMonth = (month) => {
+  return new Date(CURRENT_YEAR, month, 0).getDate();
+};
+
+const dayOfTheWeek = (month, day) => {
+  return daysOfWeekObj[new Date(`${CURRENT_YEAR}, ${month}, ${day}`).getDay()];
+};
+
 const makeTwoDigits = (number) => {
   return number > 9 ? "" + number : "0" + number;
 };
@@ -105,18 +115,190 @@ const datePageLink = () => {
   return NOTE_START_PAGE + dayCounter;
 };
 
-// CREATE NOTE PAGES //
-[...Array(daysInYear() + 1)].map((_, day) => {
-  // doc.addPage({ margin: 35 });
+const createDottedBackground = () => {
+  for (let i = 0; i < LENGTH; i++) {
+    doc
+      .moveTo(i * 15 + 25, MARGIN / 2)
+      .lineTo(i * 15 + 25, LENGTH)
+      .dash(1, { space: 15 })
+      .stroke();
+  }
+};
+
+// CREATE NOTE PAGE FOR EACH DAY //
+const createDailyPages = (month) => {
+  [...Array(daysInMonth(month))].map((_, day) => {
+    dayCounterV2++;
+
+    doc.switchToPage(NOTE_START_PAGE + dayCounterV2);
+    doc
+      .fontSize(16)
+      .fillColor(BLACK)
+      .text(
+        `${dayOfTheWeek(month, day + 1)}, ${
+          headerLinks[month - 1]
+        } ${makeTwoDigits(day + 1)}`,
+        450,
+        15,
+        {
+          align: "center",
+          indent: 25,
+        }
+      );
+
+    // CREATE BOX AROUND DAY OF PAGE
+    doc
+      .moveTo(480, 0)
+      .lineTo(480, 40)
+      .moveTo(480, 40)
+      .lineTo(WIDTH, 40)
+      .strokeColor(BLACK)
+      .dash(0.001, { space: 0 })
+      .stroke();
+  });
+};
+
+// CREATE HEADER LINK FOR EVERY PAGE //
+const createHeaderLink = () => {
+  const pageRange = doc.bufferedPageRange();
+  const totalPages = pageRange.count;
+  let currPage = 1; // no link headers for title page.
+
+  [...Array(totalPages - 1)].map((i, page) => {
+    doc.switchToPage(currPage);
+    currPage++;
+
+    [...Array(headerLinks.length)].map((_, i) => {
+      doc
+        .fontSize(12)
+        .fillColor(DARK_GRAY)
+        .text(headerLinks[i], 15 + 35 * i, 15, {
+          align: "left",
+          width: 410,
+          wordSpacing: 10,
+          link: i + 1,
+        })
+        .fill(BLACK);
+    });
+
+    // ADD LINK TO END FOR NOTES //
+    doc
+      .fontSize(12)
+      .fillColor(DARK_GRAY)
+      .text("Notes", 15 + 35 * 12, 15, {
+        align: "left",
+        width: 410,
+        wordSpacing: 10,
+        link: 378,
+      });
+  });
+};
+
+const createMonthlyPrompts = () => {
+  doc
+    .fontSize(14)
+    .fillColor(LIGHT_GRAY)
+    .text("Month Goal", WIDTH / 2 + 10, MARGIN / 2, {
+      oblique: true,
+    });
+
+  doc
+    .fontSize(14)
+    .fillColor(LIGHT_GRAY)
+    .text("Notable Dates", MARGIN / 2, LENGTH / 3 + 10, {
+      oblique: true,
+    });
+
+  doc
+    .fontSize(14)
+    .fillColor(LIGHT_GRAY)
+    .text("Month Reflection", WIDTH / 2 + 10, LENGTH / 3 + 10, {
+      oblique: true,
+    });
+};
+
+// Create Calendar overview pages //
+const createCalendarPage = () => {
+  // CREATE CALENAR OVERVIEW PAGES //
+  Object.keys(monthsObj).forEach((month) => {
+    doc.switchToPage(pageCounter);
+    pageCounter++;
+
+    // Name of Month //
+    doc.fontSize(24).fillColor(BLACK).text(monthsObj[month], 55, 55, {
+      align: "left",
+      continued: false,
+    });
+
+    // Days of the Week Sun-Sat //
+    Object.values(daysOfWeekObj).forEach((day) => {
+      doc.fontSize(12).fillColor(BLACK).text(day, {
+        continued: true,
+        columns: 2,
+        wordSpacing: 9,
+      });
+    });
+
+    // Start calendar off on the right day by inserting empty spaces.
+    let startingDayOfWeek = new Date(`${CURRENT_YEAR}, ${month}`).getDay();
+
+    [...Array(startingDayOfWeek)].map((_x, _y) => {
+      doc.fontSize(12).text(" ", {
+        continued: true,
+        wordSpacing: 27.5,
+      });
+    });
+
+    // Populate each of the days in the month //
+    [...Array(daysInMonth(month))].map((_, day) => {
+      dayCounter++;
+
+      doc.fontSize(12).text(makeTwoDigits(day + 1), {
+        continued: true,
+        wordSpacing: 17.5,
+        lineGap: 10,
+        link: datePageLink(),
+      });
+    });
+    doc.text("", { continued: false }); // Added this to stop the continued:true carry over
+
+    // CREATE MONTHLY PROMPTS //
+    createMonthlyPrompts();
+    createDailyPages(month);
+    createHeaderLink();
+  });
+};
+
+// CREATE NOTE PAGES + 25 extra pages//
+// want custom margin for note pages
+console.log(`Creating PDF Jounral for ${CURRENT_YEAR}...`);
+[...Array(NOTE_START_PAGE)].map((_, _calendarPages) => {
   doc
     .addPage()
-    .moveTo(WIDTH / 2, MARGIN)
-    .lineTo(WIDTH / 2, LENGTH)
+    .moveTo(WIDTH / 2, MARGIN / 2)
+    .lineTo(WIDTH / 2, LENGTH - MARGIN / 2)
     .moveTo(45, LENGTH / 3)
     .lineTo(WIDTH - 45, LENGTH / 3)
     .strokeColor(LIGHT_GRAY)
     .stroke();
+
+  createDottedBackground();
 });
+
+[...Array(daysInYear() + EXTRA_PAGES - NOTE_START_PAGE)].map(
+  (_, _calendarPages) => {
+    doc
+      .addPage({ margin: 10 })
+      .moveTo(WIDTH / 2, MARGIN / 2)
+      .lineTo(WIDTH / 2, LENGTH - MARGIN / 2)
+      .moveTo(45, LENGTH / 3)
+      .lineTo(WIDTH - 45, LENGTH / 3)
+      .strokeColor(LIGHT_GRAY)
+      .stroke();
+
+    createDottedBackground();
+  }
+);
 
 // CREATE TITLE PAGE
 doc.switchToPage(0);
@@ -124,95 +306,8 @@ doc.fontSize(120).text("Year of 2021", {
   align: "center",
 });
 
-// CREATE CALENAR OVERVIEW PAGES //
-Object.keys(monthsObj).forEach((month) => {
-  doc.switchToPage(pageCounter);
-  pageCounter++;
-
-  let daysInMonth = new Date(CURRENT_YEAR, month, 0).getDate();
-
-  // Name of Month //
-  doc
-    .fontSize(24)
-    .text(monthsObj[month], 45, 45, {
-      align: "left",
-      continued: false,
-    })
-    .fill(BLACK);
-
-  // Days of the Week Sun-Sat //
-  Object.values(daysOfWeekObj).forEach((day) => {
-    doc
-      .fontSize(12)
-      .text(day, {
-        continued: true,
-        columns: 2,
-        wordSpacing: 9,
-      })
-      .fill(BLACK);
-  });
-
-  // Start calendar off on the right day by inserting empty spaces.
-  // Need -1 because it is 0 index... but getDate() is not...
-  let startingDayOfWeek = new Date(CURRENT_YEAR, month - 1).getDay();
-
-  [...Array(startingDayOfWeek + 1)].map((_x, _y) => {
-    doc.fontSize(12).text(" ", {
-      continued: true,
-      wordSpacing: 27.5,
-    });
-  });
-
-  console.log("MM/DD: ", month, "/", daysInMonth);
-  // Populate each of the days in the month //
-  [...Array(daysInMonth)].map((_, day) => {
-    dayCounter++;
-
-    doc
-      .fontSize(12)
-      .text(makeTwoDigits(day + 1), {
-        continued: true,
-        wordSpacing: 17.5,
-        lineGap: 10,
-        link: datePageLink(),
-      })
-      .fill(BLACK);
-  });
-  doc.addPage();
-
-  // CREATE NOTE PAGE FOR EACH DAY //
-  [...Array(daysInMonth)].map((_, day) => {
-    dayCounterV2++;
-
-    doc.switchToPage(NOTE_START_PAGE + dayCounterV2);
-    doc
-      .fontSize(12)
-      .text(`${monthsObj[month]} ${makeTwoDigits(day + 1)}`, 15, 45, {
-        align: "center",
-      });
-  });
-
-  // CREATE HEADER LINK FOR EVERY PAGE //
-  const pageRange = doc.bufferedPageRange();
-  doc.addPage(); //something about buffered pages not getting the last page //
-  const totalPages = pageRange.count;
-  console.log("PAGE RANGE: ", pageRange);
-  let currPage = 1;
-
-  [...Array(totalPages)].map((i, page) => {
-    doc.switchToPage(currPage);
-    currPage++;
-
-    [...Array(headerLinks.length)].map((_, i) => {
-      doc.fontSize(12).text(headerLinks[i], 15 + 35 * i, 15, {
-        align: "left",
-        width: 410,
-        wordSpacing: 10,
-        link: i + 1,
-      });
-    });
-  });
-});
+createCalendarPage();
 
 doc.pipe(fs.createWriteStream("./test.pdf"));
+console.log("Done.");
 doc.end();
