@@ -113,7 +113,7 @@ const createDailyPages = (month) => {
           headerLinks[month - 1]
         } ${makeTwoDigits(day + 1)}`,
         450,
-        15,
+        17.5,
         {
           align: "center",
           indent: 25,
@@ -123,9 +123,9 @@ const createDailyPages = (month) => {
     // CREATE BOX AROUND DAY OF PAGE
     doc
       .moveTo(480, 0)
-      .lineTo(480, 40)
-      .moveTo(480, 40)
-      .lineTo(WIDTH, 40)
+      .lineTo(480, 45)
+      .moveTo(480, 45)
+      .lineTo(WIDTH, 45)
       .strokeColor(BLACK)
       .dash(0.001, { space: 0 })
       .stroke();
@@ -146,7 +146,7 @@ const createHeaderLink = () => {
       doc
         .fontSize(12)
         .fillColor(DARK_GRAY)
-        .text(headerLinks[i], 15 + 35 * i, 15, {
+        .text(headerLinks[i], 15 + 35 * i, 35, {
           align: "left",
           width: 410,
           wordSpacing: 10,
@@ -159,7 +159,7 @@ const createHeaderLink = () => {
     doc
       .fontSize(12)
       .fillColor(DARK_GRAY)
-      .text("Notes", 15 + 35 * 12, 15, {
+      .text("Notes", 15 + 35 * 12, 35, {
         align: "left",
         width: 410,
         wordSpacing: 10,
@@ -172,21 +172,21 @@ const createMonthlyPrompts = () => {
   doc
     .fontSize(14)
     .fillColor(LIGHT_GRAY)
-    .text("Month Goal", WIDTH / 2 + 10, MARGIN / 2, {
+    .text("Month Goal", WIDTH / 2 + 10, MARGIN / 2 + 25, {
       oblique: true,
     });
 
   doc
     .fontSize(14)
     .fillColor(LIGHT_GRAY)
-    .text("Notable Dates", MARGIN / 2, LENGTH / 3 + 10, {
+    .text("Notable Dates", MARGIN / 2, LENGTH / 3 + 30, {
       oblique: true,
     });
 
   doc
     .fontSize(14)
     .fillColor(LIGHT_GRAY)
-    .text("Month Reflection", WIDTH / 2 + 10, LENGTH / 3 + 10, {
+    .text("Month Reflection", WIDTH / 2 + 10, LENGTH / 3 + 30, {
       oblique: true,
     });
 };
@@ -199,7 +199,7 @@ const createCalendarPage = () => {
     pageCounter++;
 
     // Name of Month //
-    doc.fontSize(24).fillColor(BLACK).text(monthsObj[month], 55, 55, {
+    doc.fontSize(24).fillColor(BLACK).text(monthsObj[month], 55, 75, {
       align: "left",
       continued: false,
     });
@@ -249,24 +249,25 @@ console.log(`Creating PDF Journal for ${JOURNAL_YEAR}...`);
 [...Array(NOTE_START_PAGE)].map((_, _calendarPages) => {
   doc
     .addPage()
-    .moveTo(WIDTH / 2, MARGIN / 2)
+    .moveTo(WIDTH / 2, MARGIN / 2 + 25)
     .lineTo(WIDTH / 2, LENGTH - MARGIN / 2)
-    .moveTo(45, LENGTH / 3)
-    .lineTo(WIDTH - 45, LENGTH / 3)
+    .moveTo(45, LENGTH / 3 + 25)
+    .lineTo(WIDTH - 45, LENGTH / 3 + 25)
     .strokeColor(LIGHT_GRAY)
     .stroke();
 
   createDottedBackground();
 });
 
+doc.switchToPage(NOTE_START_PAGE);
 [...Array(daysInYear() + EXTRA_PAGES - NOTE_START_PAGE)].map(
   (_, _calendarPages) => {
     doc
       .addPage({ margin: 10 })
-      .moveTo(WIDTH / 2, MARGIN / 2)
-      .lineTo(WIDTH / 2, LENGTH - MARGIN / 2)
-      .moveTo(45, LENGTH / 3)
-      .lineTo(WIDTH - 45, LENGTH / 3)
+      .moveTo(WIDTH / 2, MARGIN / 2 + 25)
+      .lineTo(WIDTH / 2, LENGTH / 3 + 25)
+      .moveTo(45, LENGTH / 3 + 25)
+      .lineTo(WIDTH - 45, LENGTH / 3 + 25)
       .strokeColor(LIGHT_GRAY)
       .stroke();
 
