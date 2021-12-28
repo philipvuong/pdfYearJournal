@@ -1,14 +1,12 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
-const { switchToPage } = require("pdfkit");
 
 const doc = new PDFDocument({
   bufferPages: true,
 });
 
-const CURRENT_YEAR = 2022;
+const JOURNAL_YEAR = 2022;
 const NOTE_START_PAGE = 12; // REFINE THIS CONSTANT // THIS ACTUALLY STARTS AT 14
-const ACTUAL_NOTE_START_PAGE = 14;
 const LIGHT_GRAY = "#D3D3D3";
 const BLACK = "#000000";
 const DARK_GRAY = "#696969";
@@ -29,18 +27,6 @@ let dayCounterV2 = 0;
 // 792/2 = 396; -144 = 252
 
 const monthsObj = {
-  // 0: 'January',
-  // 1: 'Februrary',
-  // 2: 'March',
-  // 3: 'April',
-  // 4: 'May',
-  // 5: 'June',
-  // 6: 'July',
-  // 7: 'August',
-  // 8: 'September',
-  // 9: 'October',
-  // 10: 'November',
-  // 11: 'December'
   1: "January",
   2: "Februrary",
   3: "March",
@@ -80,31 +66,19 @@ const daysOfWeekObj = {
   6: "Sat",
 };
 
-//   TODO    //
-// - index pages for notable dates.
-// - Why first day of month note page is offset
-// - OPTIONAL: Prompts for journaling/goal
-// END TODO //
-
-const daysIntoYear = (month, day) => {
-  return (
-    (Date.UTC(CURRENT_YEAR, month, day) - daysInYear()) / 24 / 60 / 60 / 1000
-  );
-};
-
 const daysInYear = () => {
-  return (CURRENT_YEAR % 4 === 0 && CURRENT_YEAR % 100 > 0) ||
-    CURRENT_YEAR % 400 == 0
+  return (JOURNAL_YEAR % 4 === 0 && JOURNAL_YEAR % 100 > 0) ||
+    JOURNAL_YEAR % 400 == 0
     ? 366
     : 365;
 };
 
 const daysInMonth = (month) => {
-  return new Date(CURRENT_YEAR, month, 0).getDate();
+  return new Date(JOURNAL_YEAR, month, 0).getDate();
 };
 
 const dayOfTheWeek = (month, day) => {
-  return daysOfWeekObj[new Date(`${CURRENT_YEAR}, ${month}, ${day}`).getDay()];
+  return daysOfWeekObj[new Date(`${JOURNAL_YEAR}, ${month}, ${day}`).getDay()];
 };
 
 const makeTwoDigits = (number) => {
@@ -240,7 +214,7 @@ const createCalendarPage = () => {
     });
 
     // Start calendar off on the right day by inserting empty spaces.
-    let startingDayOfWeek = new Date(`${CURRENT_YEAR}, ${month}`).getDay();
+    let startingDayOfWeek = new Date(`${JOURNAL_YEAR}, ${month}`).getDay();
 
     [...Array(startingDayOfWeek)].map((_x, _y) => {
       doc.fontSize(12).text(" ", {
@@ -271,7 +245,7 @@ const createCalendarPage = () => {
 
 // CREATE NOTE PAGES + 25 extra pages//
 // want custom margin for note pages
-console.log(`Creating PDF Jounral for ${CURRENT_YEAR}...`);
+console.log(`Creating PDF Journal for ${JOURNAL_YEAR}...`);
 [...Array(NOTE_START_PAGE)].map((_, _calendarPages) => {
   doc
     .addPage()
@@ -302,7 +276,7 @@ console.log(`Creating PDF Jounral for ${CURRENT_YEAR}...`);
 
 // CREATE TITLE PAGE
 doc.switchToPage(0);
-doc.fontSize(120).text("Year of 2021", {
+doc.fontSize(120).text(`Journal for ${JOURNAL_YEAR}`, {
   align: "center",
 });
 
