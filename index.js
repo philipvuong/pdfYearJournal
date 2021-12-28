@@ -283,6 +283,6 @@ doc.fontSize(120).text(`Journal for ${JOURNAL_YEAR}`, {
 
 createCalendarPage();
 
-doc.pipe(fs.createWriteStream("./test.pdf"));
+doc.pipe(fs.createWriteStream(`./journal_${JOURNAL_YEAR}.pdf`));
 console.log("Done.");
 doc.end();
